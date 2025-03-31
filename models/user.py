@@ -16,5 +16,5 @@ class User(Document):
     date_of_registration: Optional[datetime] = datetime.utcnow()
     last_connection: Optional[datetime] = None
 
-    class Settings:
+    class Config:  # CAMBIA Settings por Config
         collection = "users"
