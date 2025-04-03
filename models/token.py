@@ -1,12 +1,14 @@
 from beanie import Document
 from datetime import datetime
+from pydantic import Field
 from typing import Optional
+from bson import ObjectId  # Importamos ObjectId
 
 class Token(Document):
-    user_id: str  # ID del usuario al que pertenece el token
-    token: str  # Token generado
-    created_at: datetime = datetime.utcnow()
-    expires_at: Optional[datetime] = None  # Fecha de expiración
+    user_id: str = Field(...)  # Guardamos el ID del usuario como string
+    token: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None
 
     class Settings:
-        collection = "tokens"
+        name = "Token"  # Nombre de la colección en la base de datos

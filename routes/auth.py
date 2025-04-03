@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from models.user import User
 from utils.auth import verify_password, create_access_token, get_current_user
+from models.token import Token  # Importa el modelo de Token
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
@@ -19,7 +21,22 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Contraseña incorrecta"
         )
 
+    # Generar el token de acceso
     access_token = create_access_token({"sub": user.email})
+
+    # Calcular la fecha de expiración si es necesario (por ejemplo, 1 hora)
+    expires_at = datetime.utcnow() + timedelta(hours=1)
+
+    # Crear e insertar el token en la colección
+    token_entry = Token(
+        user_id=str(user.id),  # Asumiendo que `user.id` es un ObjectId, lo convertimos a string
+        token=access_token,
+        expires_at=expires_at
+    )
+
+    # Guardar el token en la base de datos
+    await token_entry.insert()
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/users/me")
